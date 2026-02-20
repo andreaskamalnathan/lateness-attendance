@@ -6,16 +6,16 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import db from './db.js';
 
-// TEMPORARY: Database Fix Script
+// TEMPORARY: Database Fix Script using Promises
 db.query(`
   ALTER TABLE lateness_records 
   MODIFY id INT AUTO_INCREMENT;
-`, (err) => {
-  if (err) {
-    console.error("Fix failed:", err.message);
-  } else {
-    console.log("SUCCESS: 'id' is now Auto-Incrementing!");
-  }
+`)
+.then(() => {
+  console.log("SUCCESS: 'id' is now Auto-Incrementing!");
+})
+.catch((err) => {
+  console.error("Fix failed or already applied:", err.message);
 });
 
 const __filename = fileURLToPath(import.meta.url);
