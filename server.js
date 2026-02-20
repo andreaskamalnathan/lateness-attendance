@@ -1,4 +1,4 @@
-import 'dotenv/config'; // Modern way to load .env with ES Modules
+import 'dotenv/config'; 
 import express from 'express';
 import cors from 'cors';
 import { hash, compare } from 'bcrypt';
@@ -6,17 +6,17 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import db from './db.js';
 
-db.query(`
-  ALTER TABLE lateness_records 
-  MODIFY id INT AUTO_INCREMENT,
-  MODIFY arrival_time DATETIME DEFAULT CURRENT_TIMESTAMP;
-`)
-.then(() => {
-  console.log("SUCCESS: Table structure updated!");
-})
-.catch((err) => {
-  console.error("Fix failed or already applied:", err.message);
-});
+//db.query(`
+//  ALTER TABLE lateness_records 
+//  MODIFY id INT AUTO_INCREMENT,
+//  MODIFY arrival_time DATETIME DEFAULT CURRENT_TIMESTAMP;
+//`)
+//.then(() => {
+//  console.log("SUCCESS: Table structure updated!");
+//})
+//.catch((err) => {
+//  console.error("Fix failed or already applied:", err.message);
+//});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -59,7 +59,6 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// Added back the Scan route
 app.post('/api/scan', async (req, res) => {
   try {
     const { student_id, reason, minutes_late } = req.body;
@@ -78,9 +77,6 @@ app.get('/api/history/:student_id', async (req, res) => {
       [req.params.student_id]
     );
     
-    // Add this line to debug:
-    //console.log(`History records found for ${req.params.student_id}:`, results.length);
-    
     res.json(results);
   } catch (err) {
     console.error("Database Error:", err.message);
@@ -88,7 +84,6 @@ app.get('/api/history/:student_id', async (req, res) => {
   }
 });
 
-// Added back the Admin Records route
 app.get('/api/admin/records', async (req, res) => {
   try {
     const sql = `
@@ -104,9 +99,6 @@ app.get('/api/admin/records', async (req, res) => {
   }
 });
 
-// --- FRONTEND SERVING ---
-
-
 app.use(express.static(join(__dirname, 'dist')));
 
 app.use((req, res) => {
@@ -116,12 +108,10 @@ app.use((req, res) => {
   res.sendFile(join(__dirname, 'dist', 'index.html'));
 });
 
-// Use environment PORT if available (for Railway), otherwise 3000
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, '0.0.0.0', () => {
-  // This version is cleaner and works for both local and cloud
   console.log(`Server is awake!`);
-  console.log(`Local Access: http://localhost:${PORT}`);
-  console.log(`Network Access: http://192.168.134.35:${PORT}`);
+  //console.log(`Local Access: http://localhost:${PORT}`);
+  //console.log(`Network Access: http://192.168.134.35:${PORT}`);
 });
