@@ -6,6 +6,18 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import db from './db.js';
 
+// TEMPORARY: Database Fix Script
+db.query(`
+  ALTER TABLE lateness_records 
+  MODIFY id INT AUTO_INCREMENT;
+`, (err) => {
+  if (err) {
+    console.error("Fix failed:", err.message);
+  } else {
+    console.log("SUCCESS: 'id' is now Auto-Incrementing!");
+  }
+});
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
