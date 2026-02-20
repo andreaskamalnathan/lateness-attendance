@@ -6,13 +6,13 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import db from './db.js';
 
-// TEMPORARY: Database Fix Script using Promises
 db.query(`
   ALTER TABLE lateness_records 
-  MODIFY id INT AUTO_INCREMENT;
+  MODIFY id INT AUTO_INCREMENT,
+  MODIFY arrival_time DATETIME DEFAULT CURRENT_TIMESTAMP;
 `)
 .then(() => {
-  console.log("SUCCESS: 'id' is now Auto-Incrementing!");
+  console.log("SUCCESS: Table structure updated!");
 })
 .catch((err) => {
   console.error("Fix failed or already applied:", err.message);
