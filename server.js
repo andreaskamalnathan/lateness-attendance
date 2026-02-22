@@ -17,10 +17,6 @@ import db from './db.js';
 //.catch((err) => {
 //  console.error("Fix failed or already applied:", err.message);
 //});
-//db.query(`
-//  ALTER TABLE students 
-//  ADD COLUMN face_descriptor TEXT;
-//`);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
