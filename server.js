@@ -17,6 +17,10 @@ import db from './db.js';
 //.catch((err) => {
 //  console.error("Fix failed or already applied:", err.message);
 //});
+//db.query(`
+//  ALTER TABLE students 
+//  ADD COLUMN face_descriptor TEXT;
+//`);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -50,10 +54,23 @@ app.post('/api/login', async (req, res) => {
     const match = await compare(password, user.password);
     if (match) {
       delete user.password; 
+      user.class_group = user.class;
       res.json({ message: "Login successful", user });
     } else {
       res.status(401).json({ error: "Wrong password" });
     }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Route to save student face data
+app.post('/api/enroll-face', async (req, res) => {
+  try {
+    const { student_id, face_descriptor } = req.body;
+    const sql = `UPDATE students SET face_descriptor = ? WHERE student_id = ?`;
+    await db.execute(sql, [JSON.stringify(face_descriptor), student_id]);
+    res.json({ message: "Face enrolled!" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -88,7 +105,8 @@ app.get('/api/admin/records', async (req, res) => {
   try {
     const sql = `
       SELECT s.student_id, s.name, s.level, s.grade, s.class as class_group, s.ship, 
-             l.arrival_time as date, l.minutes_late as total_lateness, l.reason
+             l.arrival_time as date, l.minutes_late as total_lateness, l.reason,
+             IF(s.face_descriptor IS NOT NULL, 'Yes', 'No') as face_registered
       FROM lateness_records l
       JOIN students s ON l.student_id = s.student_id
       ORDER BY l.arrival_time DESC`;
@@ -98,6 +116,15 @@ app.get('/api/admin/records', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+app.use('/models', express.static(join(__dirname, 'dist/models'), {
+    setHeaders: (res, path) => {
+        // Forces the server to treat shards as binary data (so it can be downloaded and read by face-api.js) instead of trying to parse them as text)
+        if (path.includes('-shard')) {
+            res.set('Content-Type', 'application/octet-stream');
+        }
+    }
+}));
 
 app.use(express.static(join(__dirname, 'dist')));
 
